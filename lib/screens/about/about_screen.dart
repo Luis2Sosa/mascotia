@@ -8,366 +8,250 @@ class AboutMascotiaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final safeTop = MediaQuery.of(context).padding.top;
+    final bool smallDevice = size.height < 750;
+
+    final double logoSize = smallDevice ? 240 : 300;
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
       body: AppBackgroundBlobs(
-        child: SafeArea(
-          child: Stack(
-            children: [
-              CustomScrollView(
+        child: Stack(
+          children: [
+            // ───────── PATITAS EN TODA LA PANTALLA
+            ..._buildPaws(),
+
+            SafeArea(
+              child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                slivers: [
-                  // ─────────────────────────────────────────────
-                  // HEADER PREMIUM
-                  // ─────────────────────────────────────────────
-                  SliverAppBar(
-                    expandedHeight: size.height * 0.28,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    pinned: false,
-                    automaticallyImplyLeading: false,
-                    flexibleSpace: FlexibleSpaceBar(
-                      centerTitle: true,
-                      background: Center(
-                        child: Hero(
-                          tag: 'mascotia_logo',
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // GLOW
-                              Container(
-                                width: size.width * 0.52,
-                                height: size.width * 0.52,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: RadialGradient(
-                                    colors: [
-                                      const Color(0xFF5DCAA5)
-                                          .withOpacity(0.16),
-                                      Colors.transparent,
-                                    ],
-                                  ),
-                                ),
-                              ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 28),
+                  child: Column(
+                    children: [
+                      SizedBox(height: smallDevice ? 0 : 6),
 
-                              // LOGO
-                              Container(
-                                padding: const EdgeInsets.all(26),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      const Color(0xFF1D9E75)
-                                          .withOpacity(0.25),
-                                      const Color(0xFF143A32)
-                                          .withOpacity(0.18),
-                                    ],
-                                  ),
-                                  border: Border.all(
-                                    color:
-                                    Colors.white.withOpacity(0.10),
-                                    width: 1.2,
-                                  ),
-                                ),
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  width: size.width * 0.34,
-                                  height: size.width * 0.34,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ],
+                      // ───────── LOGO GRANDE
+                      Hero(
+                        tag: 'mascotia_logo',
+                        child: Transform.scale(
+                          scale: 1.35,
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            width: logoSize,
+                            height: logoSize,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
-                    ),
-                  ),
 
-                  // ─────────────────────────────────────────────
-                  // CONTENIDO
-                  // ─────────────────────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        children: [
-                          // TITULO
-                          Text(
-                            'Sobre Mascotia',
+                      // ───────── TÍTULO
+                      Transform.translate(
+                        offset: const Offset(0, -54),
+                        child: ShaderMask(
+                          shaderCallback: (bounds) =>
+                              const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.white,
+                                  Color(0xFF8BE5C0),
+                                ],
+                              ).createShader(bounds),
+                          child: const Text(
+                            "Sobre Mascotia",
                             textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: size.width * 0.08,
+                              fontSize: 46,
                               fontWeight: FontWeight.w900,
-                              letterSpacing: -1,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.black.withOpacity(0.25),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 6),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 14),
-
-                          // SUBTITULO
-                          Text(
-                            'Recordatorios, comunidad y cuidado.\nTodo en un solo lugar.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.72),
-                              fontSize: 15,
-                              height: 1.6,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-
-                          const SizedBox(height: 36),
-
-                          // ─────────────────────────────────────
-                          // CARD 1
-                          // ─────────────────────────────────────
-                          _PremiumGlassCard(
-                            title: 'Qué puedes hacer',
-                            icon: Icons.pets_rounded,
-                            accentColor: Colors.orangeAccent,
-                            child: Column(
-                              children: const [
-                                _BulletItem(
-                                  'Gestionar recordatorios de salud.',
-                                ),
-                                _BulletItem(
-                                  'Capturar momentos inolvidables.',
-                                ),
-                                _BulletItem(
-                                  'Conectar con una comunidad real.',
-                                ),
-                                _BulletItem(
-                                  'Sugerencias inteligentes de cuidado.',
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 26),
-
-                          // ─────────────────────────────────────
-                          // CARD 2
-                          // ─────────────────────────────────────
-                          _PremiumGlassCard(
-                            title: 'Por qué existe',
-                            icon: Icons.auto_awesome_rounded,
-                            accentColor: Colors.lightBlueAccent,
-                            child: Text(
-                              'Creemos que cuidar a tu mascota debería sentirse natural. '
-                                  'Sin ruido visual ni distracciones, Mascotia se enfoca '
-                                  'en fortalecer el vínculo con tu mejor amigo.',
-                              style: TextStyle(
-                                color: Colors.black.withOpacity(0.72),
-                                fontSize: 15,
-                                height: 1.7,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 26),
-
-                          // ─────────────────────────────────────
-                          // CARD 3
-                          // ─────────────────────────────────────
-                          _PremiumGlassCard(
-                            title: 'Diseño & Privacidad',
-                            icon: Icons.verified_user_rounded,
-                            accentColor: Colors.greenAccent,
-                            child: Column(
-                              children: const [
-                                _BulletItem(
-                                  'Interfaz limpia y moderna.',
-                                ),
-                                _BulletItem(
-                                  'Experiencia fluida y rápida.',
-                                ),
-                                _BulletItem(
-                                  'Tus datos están protegidos.',
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 46),
-
-                          // TEXTO FINAL
-                          Text(
-                            'Hecho con ❤️ para quienes aman a sus mascotas.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.55),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // ─────────────────────────────────────────────
-                  // FOOTER
-                  // ─────────────────────────────────────────────
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: 40,
-                        bottom: size.height * 0.04,
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 1.5,
-                            color: Colors.white.withOpacity(0.12),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          const Text(
-                            'SOSA TECH LAB',
-                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 4,
+                              letterSpacing: -2.2,
+                              height: 0.90,
                             ),
                           ),
-
-                          const SizedBox(height: 8),
-
-                          Text(
-                            '© 2026 • Todos los derechos reservados',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.35),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
 
-              // ─────────────────────────────────────────────
-              // BOTON BACK
-              // ─────────────────────────────────────────────
-              Positioned(
-                top: safeTop + 8,
-                left: 20,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(50),
-                  child: BackdropFilter(
-                    filter:
-                    ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: Container(
-                      decoration: BoxDecoration(
+                      SizedBox(height: smallDevice ? 0 : 6),
+
+                      // ───────── CARD 1
+                      _premiumCard(
+                        title: "Qué puedes hacer",
+                        icon: Icons.pets_rounded,
+                        child: Column(
+                          children: const [
+                            _BulletItem(
+                              'Gestionar recordatorios de salud.',
+                            ),
+                            _BulletItem(
+                              'Capturar momentos inolvidables.',
+                            ),
+                            _BulletItem(
+                              'Conectar con una comunidad real.',
+                            ),
+                            _BulletItem(
+                              'Sugerencias inteligentes de cuidado.',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // ───────── CARD 2
+                      _premiumCard(
+                        title: "Por qué existe",
+                        icon: Icons.auto_awesome_rounded,
+                        child: Text(
+                          'Creemos que cuidar a tu mascota debería sentirse natural. '
+                              'Sin ruido visual ni distracciones, Mascotia se enfoca '
+                              'en fortalecer el vínculo con tu mejor amigo.',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.82),
+                            fontSize: 15,
+                            height: 1.7,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // ───────── CARD 3
+                      _premiumCard(
+                        title: "Diseño & Privacidad",
+                        icon: Icons.verified_user_rounded,
+                        child: Column(
+                          children: const [
+                            _BulletItem(
+                              'Interfaz limpia y moderna.',
+                            ),
+                            _BulletItem(
+                              'Experiencia fluida y rápida.',
+                            ),
+                            _BulletItem(
+                              'Tus datos están protegidos.',
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 38),
+
+                      // ───────── FOOTER
+                      Text(
+                        'Hecho con ❤️ para quienes aman a sus mascotas.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.55),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+
+                      const SizedBox(height: 34),
+
+                      Container(
+                        width: 36,
+                        height: 1.5,
                         color: Colors.white.withOpacity(0.12),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.15),
-                          width: 1,
-                        ),
                       ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new_rounded,
+
+                      const SizedBox(height: 24),
+
+                      const Text(
+                        'SOSA TECH LAB',
+                        style: TextStyle(
                           color: Colors.white,
-                          size: 18,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 4,
                         ),
-                        tooltip: 'Volver',
-                        onPressed: () =>
-                            Navigator.of(context).pop(),
                       ),
-                    ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        '© 2026 • Todos los derechos reservados',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.35),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+
+                      SizedBox(height: smallDevice ? 24 : 34),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────
-// PREMIUM CARD
-// ─────────────────────────────────────────────────────
-class _PremiumGlassCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final Widget child;
-  final Color accentColor;
-
-  const _PremiumGlassCard({
-    required this.title,
-    required this.icon,
-    required this.child,
-    required this.accentColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  // ───────── PREMIUM CARD
+  Widget _premiumCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+  }) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(32),
       child: BackdropFilter(
         filter: ImageFilter.blur(
-          sigmaX: 16,
-          sigmaY: 16,
+          sigmaX: 18,
+          sigmaY: 18,
         ),
         child: Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.82),
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.55),
-              width: 1,
+            borderRadius: BorderRadius.circular(32),
+
+            // ───────── MÁS TRANSPARENTE
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.10),
+                Colors.white.withOpacity(0.035),
+              ],
             ),
+
+            border: Border.all(
+              color: Colors.white.withOpacity(0.10),
+              width: 1.2,
+            ),
+
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 40,
-                spreadRadius: -8,
-                offset: const Offset(0, 20),
+                color: Colors.black.withOpacity(0.10),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
               ),
             ],
           ),
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(11),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.16),
-                      borderRadius:
-                      BorderRadius.circular(14),
+                      color: Colors.white.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Icon(
                       icon,
-                      color: accentColor,
+                      color: const Color(0xFF8BE0BD),
                       size: 20,
                     ),
                   ),
@@ -378,20 +262,100 @@ class _PremiumGlassCard extends StatelessWidget {
                     child: Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E1E24),
-                        letterSpacing: -0.2,
+                        color: Colors.white,
+                        letterSpacing: -0.4,
                       ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 22),
 
               child,
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ───────── PATITAS EN TODA LA PANTALLA
+  List<Widget> _buildPaws() {
+    return [
+      // TOP
+      _paw(top: 30, left: 22, size: 18, opacity: 0.08, angle: -0.4),
+      _paw(top: 55, left: 110, size: 14, opacity: 0.07, angle: 0.3),
+      _paw(top: 42, left: 210, size: 22, opacity: 0.09, angle: 0.5),
+      _paw(top: 70, right: 30, size: 18, opacity: 0.08, angle: -0.2),
+
+      // UPPER
+      _paw(top: 120, left: 45, size: 24, opacity: 0.10, angle: 0.7),
+      _paw(top: 140, left: 160, size: 16, opacity: 0.08, angle: -0.5),
+      _paw(top: 115, right: 75, size: 26, opacity: 0.09, angle: 0.4),
+      _paw(top: 170, right: 25, size: 18, opacity: 0.08, angle: -0.6),
+
+      // LOGO
+      _paw(top: 220, left: 18, size: 20, opacity: 0.08, angle: 0.2),
+      _paw(top: 250, left: 120, size: 28, opacity: 0.10, angle: -0.4),
+      _paw(top: 235, right: 120, size: 24, opacity: 0.09, angle: 0.6),
+      _paw(top: 275, right: 18, size: 18, opacity: 0.08, angle: -0.3),
+
+      // TITLE
+      _paw(top: 345, left: 40, size: 16, opacity: 0.08, angle: 0.5),
+      _paw(top: 365, left: 180, size: 26, opacity: 0.10, angle: -0.7),
+      _paw(top: 340, right: 70, size: 20, opacity: 0.09, angle: 0.2),
+
+      // CARD AREA
+      _paw(top: 455, left: 22, size: 30, opacity: 0.10, angle: -0.4),
+      _paw(top: 500, left: 135, size: 18, opacity: 0.08, angle: 0.3),
+      _paw(top: 470, right: 115, size: 28, opacity: 0.10, angle: -0.5),
+      _paw(top: 525, right: 20, size: 20, opacity: 0.08, angle: 0.6),
+
+      // BUTTON AREA
+      _paw(top: 620, left: 40, size: 24, opacity: 0.09, angle: -0.2),
+      _paw(top: 655, left: 175, size: 16, opacity: 0.08, angle: 0.5),
+      _paw(top: 635, right: 95, size: 32, opacity: 0.10, angle: -0.7),
+      _paw(top: 690, right: 25, size: 20, opacity: 0.08, angle: 0.4),
+
+      // LOWER
+      _paw(bottom: 210, left: 25, size: 26, opacity: 0.09, angle: 0.6),
+      _paw(bottom: 170, left: 130, size: 18, opacity: 0.08, angle: -0.3),
+      _paw(bottom: 200, right: 120, size: 24, opacity: 0.09, angle: 0.5),
+      _paw(bottom: 150, right: 30, size: 30, opacity: 0.10, angle: -0.5),
+
+      // BOTTOM
+      _paw(bottom: 80, left: 55, size: 18, opacity: 0.08, angle: 0.2),
+      _paw(bottom: 60, left: 190, size: 24, opacity: 0.09, angle: -0.6),
+      _paw(bottom: 95, right: 75, size: 20, opacity: 0.08, angle: 0.4),
+      _paw(bottom: 40, right: 20, size: 28, opacity: 0.10, angle: -0.3),
+    ];
+  }
+
+  Widget _paw({
+    double? top,
+    double? bottom,
+    double? left,
+    double? right,
+    required double size,
+    required double opacity,
+    double angle = 0.3,
+  }) {
+    return Positioned(
+      top: top,
+      bottom: bottom,
+      left: left,
+      right: right,
+      child: Opacity(
+        opacity: opacity,
+        child: Transform.rotate(
+          angle: angle,
+          child: Icon(
+            Icons.pets_rounded,
+            size: size,
+            color: Colors.white,
           ),
         ),
       ),
@@ -412,8 +376,7 @@ class _BulletItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Row(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -421,9 +384,8 @@ class _BulletItem extends StatelessWidget {
               width: 6,
               height: 6,
               decoration: BoxDecoration(
-                color: const Color(0xFF1D9E75),
-                borderRadius:
-                BorderRadius.circular(20),
+                color: const Color(0xFF8BE0BD),
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
           ),
@@ -434,7 +396,7 @@ class _BulletItem extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                color: Colors.black.withOpacity(0.72),
+                color: Colors.white.withOpacity(0.82),
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 height: 1.5,
