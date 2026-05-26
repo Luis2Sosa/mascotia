@@ -197,7 +197,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                                 // ───────── TÍTULO
                                 Transform.translate(
-                                  offset: const Offset(0, -34),
+                                  offset: const Offset(0, -54),
                                   child: ShaderMask(
                                     shaderCallback: (bounds) =>
                                         const LinearGradient(
@@ -218,7 +218,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                         fontWeight: FontWeight.w900,
                                         color: Colors.white,
                                         letterSpacing: -3.2,
-                                        height: 0.92,
+                                        height: 0.90,
                                       ),
                                     ),
                                   ),
@@ -347,12 +347,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           foregroundColor: const Color(0xFF0A1628),
           elevation: 14,
           shadowColor: Colors.black.withOpacity(0.22),
-
           side: BorderSide(
             color: Colors.black.withOpacity(0.04),
             width: 1,
           ),
-
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
           ),
@@ -360,12 +358,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
+            Image.asset(
+              'assets/images/google_logo.png',
               width: 22,
               height: 22,
-              child: CustomPaint(
-                painter: _GoogleIconPainter(),
-              ),
+              fit: BoxFit.contain,
             ),
 
             const SizedBox(width: 12),
@@ -411,52 +408,4 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       ),
     );
   }
-}
-
-class _GoogleIconPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(
-      size.width / 2,
-      size.height / 2,
-    );
-
-    final radius = size.width / 2;
-
-    const segments = [
-      (Color(0xFFEA4335), -15.0, 120.0),
-      (Color(0xFFFBBC05), 105.0, 60.0),
-      (Color(0xFF34A853), 165.0, 90.0),
-      (Color(0xFF4285F4), 255.0, 90.0),
-    ];
-
-    for (final (color, start, sweep) in segments) {
-      canvas.drawArc(
-        Rect.fromCircle(
-          center: center,
-          radius: radius * 0.72,
-        ),
-        start * (3.14159265 / 180),
-        sweep * (3.14159265 / 180),
-        false,
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = size.width * 0.18
-          ..strokeCap = StrokeCap.butt,
-      );
-    }
-
-    canvas.drawLine(
-      Offset(center.dx, center.dy),
-      Offset(center.dx + radius * 0.72, center.dy),
-      Paint()
-        ..color = const Color(0xFF4285F4)
-        ..strokeWidth = size.width * 0.18
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
