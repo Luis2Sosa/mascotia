@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../core/app_background.dart';
-import '../../core/app_ui.dart';
 import '../social/social_panel.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,14 +16,78 @@ enum _Tab { reminders, social }
 class _HomeScreenState extends State<HomeScreen> {
   _Tab current = _Tab.reminders;
 
+  /// ─────────────────────────────────────────────
+  /// MASCOTAS
+  /// ─────────────────────────────────────────────
   final List<_Pet> _pets = const [
-    _Pet(name: 'Rocky', meta: '4 años • 31 kg'),
-    _Pet(name: 'Luna', meta: '2 años • 5 kg'),
-    _Pet(name: 'Coco', meta: '1 año • 9 kg'),
+    _Pet(
+      id: 1,
+      name: 'Rocky',
+      meta: '4 años • 31 kg',
+    ),
+    _Pet(
+      id: 2,
+      name: 'Luna',
+      meta: '2 años • 5 kg',
+    ),
+    _Pet(
+      id: 3,
+      name: 'Coco',
+      meta: '1 año • 9 kg',
+    ),
   ];
 
   int _activePetIndex = 0;
 
+  /// ─────────────────────────────────────────────
+  /// RECORDATORIOS
+  /// ─────────────────────────────────────────────
+  final List<_Reminder> reminders = const [
+    _Reminder(
+      petId: 1,
+      icon: Icons.medication,
+      title: 'Vacunación anual',
+      date: 'Hoy 3:00 PM',
+    ),
+    _Reminder(
+      petId: 1,
+      icon: Icons.directions_walk,
+      title: 'Paseo de la tarde',
+      date: '5:00 PM',
+    ),
+    _Reminder(
+      petId: 1,
+      icon: Icons.bathtub,
+      title: 'Baño',
+      date: '20 Mayo',
+    ),
+
+    /// Luna
+    _Reminder(
+      petId: 2,
+      icon: Icons.restaurant,
+      title: 'Comprar alimento',
+      date: '22 Mayo',
+    ),
+    _Reminder(
+      petId: 2,
+      icon: Icons.medical_services,
+      title: 'Chequeo veterinario',
+      date: '28 Mayo',
+    ),
+
+    /// Coco
+    _Reminder(
+      petId: 3,
+      icon: Icons.pets,
+      title: 'Corte de uñas',
+      date: '15 Junio',
+    ),
+  ];
+
+  /// ─────────────────────────────────────────────
+  /// POSTS
+  /// ─────────────────────────────────────────────
   final List<Post> posts = const [
     Post(
       id: 1,
@@ -45,69 +109,59 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final activePet = _pets[_activePetIndex];
 
+    /// 🔥 FILTRAR RECORDATORIOS POR MASCOTA
+    final petReminders = reminders
+        .where((r) => r.petId == activePet.id)
+        .toList();
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AppBackgroundBlobs(
-        child: Stack(
-          children: [
-            ..._buildPaws(),
-
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
-                child: current == _Tab.social
-                    ? NestedScrollView(
-                  headerSliverBuilder: (_, __) => [
-                    SliverToBoxAdapter(
-                      child: _HeaderAndTabs(
-                        pet: activePet,
-                        current: current,
-                        onChanged: _onTabChange,
-                        showPetSwitch: false,
-                        onTapSwitch: null,
-                      ),
-                    ),
-                  ],
-                  body: SocialPanel(
-                    posts: posts,
-                    isLiked: (id) => liked.contains(id),
-                    onToggleLike: (id) {
-                      setState(() {
-                        liked.contains(id)
-                            ? liked.remove(id)
-                            : liked.add(id);
-                      });
-                    },
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+            child: current == _Tab.social
+                ? NestedScrollView(
+              headerSliverBuilder: (_, __) => [
+                SliverToBoxAdapter(
+                  child: _HeaderAndTabs(
+                    pet: activePet,
+                    current: current,
+                    onChanged: _onTabChange,
+                    onTapSwitch: _openPetPicker,
                   ),
-                )
-                    : Column(
-                  children: [
-                    _HeaderAndTabs(
-                      pet: activePet,
-                      current: current,
-                      onChanged: _onTabChange,
-                      showPetSwitch: true,
-                      onTapSwitch: () async {
-                        final i = await _showPetPicker(
-                          context,
-                          title: 'Cambiar mascota',
-                          initialIndex: _activePetIndex,
-                        );
-
-                        if (i != null) {
-                          setState(() => _activePetIndex = i);
-                        }
-                      },
-                    ),
-
-                    const Expanded(
-                      child: _RemindersPanelNoScroll(),
-                    ),
-                  ],
                 ),
+              ],
+              body: SocialPanel(
+                posts: posts,
+                isLiked: (id) => liked.contains(id),
+                onToggleLike: (id) {
+                  setState(() {
+                    liked.contains(id)
+                        ? liked.remove(id)
+                        : liked.add(id);
+                  });
+                },
               ),
+            )
+                : Column(
+              children: [
+                _HeaderAndTabs(
+                  pet: activePet,
+                  current: current,
+                  onChanged: _onTabChange,
+                  onTapSwitch: _openPetPicker,
+                ),
+
+                Expanded(
+                  child: _RemindersPanel(
+                    pet: activePet,
+                    reminders: petReminders,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -117,50 +171,19 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => current = t);
   }
 
-  List<Widget> _buildPaws() {
-    return [
-      _paw(top: 20, left: 20, size: 18, opacity: 0.08),
-      _paw(top: 70, right: 40, size: 24, opacity: 0.09),
-      _paw(top: 160, left: 40, size: 20, opacity: 0.07),
-      _paw(top: 240, right: 90, size: 30, opacity: 0.08),
-      _paw(top: 340, left: 25, size: 22, opacity: 0.09),
-      _paw(top: 480, right: 30, size: 26, opacity: 0.08),
-      _paw(bottom: 220, left: 40, size: 24, opacity: 0.07),
-      _paw(bottom: 120, right: 50, size: 20, opacity: 0.08),
-      _paw(bottom: 40, left: 120, size: 28, opacity: 0.09),
-    ];
-  }
-
-  Widget _paw({
-    double? top,
-    double? bottom,
-    double? left,
-    double? right,
-    required double size,
-    required double opacity,
-  }) {
-    return Positioned(
-      top: top,
-      bottom: bottom,
-      left: left,
-      right: right,
-      child: Opacity(
-        opacity: opacity,
-        child: Transform.rotate(
-          angle: 0.35,
-          child: Icon(
-            Icons.pets_rounded,
-            size: size,
-            color: Colors.white,
-          ),
-        ),
-      ),
+  Future<void> _openPetPicker() async {
+    final i = await _showPetPicker(
+      context,
+      initialIndex: _activePetIndex,
     );
+
+    if (i != null) {
+      setState(() => _activePetIndex = i);
+    }
   }
 
   Future<int?> _showPetPicker(
       BuildContext context, {
-        required String title,
         required int initialIndex,
       }) {
     return showModalBottomSheet<int>(
@@ -266,28 +289,51 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+/// ─────────────────────────────────────────────
+/// MODELO PET
+/// ─────────────────────────────────────────────
 class _Pet {
+  final int id;
   final String name;
   final String meta;
 
   const _Pet({
+    required this.id,
     required this.name,
     required this.meta,
   });
 }
 
+/// ─────────────────────────────────────────────
+/// MODELO REMINDER
+/// ─────────────────────────────────────────────
+class _Reminder {
+  final int petId;
+  final IconData icon;
+  final String title;
+  final String date;
+
+  const _Reminder({
+    required this.petId,
+    required this.icon,
+    required this.title,
+    required this.date,
+  });
+}
+
+/// ─────────────────────────────────────────────
+/// HEADER
+/// ─────────────────────────────────────────────
 class _HeaderAndTabs extends StatelessWidget {
   final _Pet pet;
   final _Tab current;
   final ValueChanged<_Tab> onChanged;
-  final bool showPetSwitch;
-  final VoidCallback? onTapSwitch;
+  final VoidCallback onTapSwitch;
 
   const _HeaderAndTabs({
     required this.pet,
     required this.current,
     required this.onChanged,
-    required this.showPetSwitch,
     required this.onTapSwitch,
   });
 
@@ -297,74 +343,42 @@ class _HeaderAndTabs extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(height: 2),
+        const SizedBox(height: 8),
 
-        if (showPetSwitch) ...[
-          Center(
-            child: _PetSwitchButton(
-              label: 'Cambiar',
-              onTap: onTapSwitch!,
-            ),
+        Center(
+          child: _PetSwitchButton(
+            label: 'Cambiar mascota',
+            onTap: onTapSwitch,
           ),
-
-          const SizedBox(height: 10),
-        ],
-
-        // AVATAR
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              width: 116,
-              height: 116,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.white.withOpacity(0.20),
-                    Colors.white.withOpacity(0.05),
-                  ],
-                ),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.10),
-                ),
-              ),
-              child: const Icon(
-                Icons.pets_rounded,
-                size: 54,
-                color: Colors.white70,
-              ),
-            ),
-
-            Positioned(
-              bottom: 0,
-              right: -2,
-              child: Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF2C7BE5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.18),
-                      blurRadius: 16,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.camera_alt_rounded,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
+
+        Container(
+          width: 116,
+          height: 116,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.20),
+                Colors.white.withOpacity(0.05),
+              ],
+            ),
+            border: Border.all(
+              color: Colors.white.withOpacity(0.10),
+            ),
+          ),
+          child: const Icon(
+            Icons.pets_rounded,
+            size: 54,
+            color: Colors.white70,
+          ),
+        ),
+
+        const SizedBox(height: 14),
 
         Text(
           pet.name,
@@ -373,22 +387,19 @@ class _HeaderAndTabs extends StatelessWidget {
             fontSize: 42,
             fontWeight: FontWeight.w900,
             letterSpacing: -2,
-            height: 1,
           ),
         ),
-
-        const SizedBox(height: 4),
 
         Text(
           pet.meta,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.80),
-            fontSize: 18,
+            color: Colors.white.withOpacity(.80),
+            fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 26),
 
         Row(
           children: [
@@ -468,12 +479,15 @@ class _HeaderAndTabs extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
       ],
     );
   }
 }
 
+/// ─────────────────────────────────────────────
+/// BOTÓN CAMBIAR MASCOTA
+/// ─────────────────────────────────────────────
 class _PetSwitchButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
@@ -495,12 +509,6 @@ class _PetSwitchButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 10,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: Colors.white.withOpacity(.10),
-            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -536,52 +544,61 @@ class _PetSwitchButton extends StatelessWidget {
   }
 }
 
-class _RemindersPanelNoScroll extends StatelessWidget {
-  const _RemindersPanelNoScroll();
+/// ─────────────────────────────────────────────
+/// PANEL RECORDATORIOS
+/// ─────────────────────────────────────────────
+class _RemindersPanel extends StatelessWidget {
+  final _Pet pet;
+  final List<_Reminder> reminders;
+
+  const _RemindersPanel({
+    required this.pet,
+    required this.reminders,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _GlassCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hoy 15:00',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.65),
-                    fontWeight: FontWeight.w600,
+          if (reminders.isNotEmpty)
+            _GlassCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    reminders.first.date,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(.65),
+                    ),
                   ),
-                ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                const Text(
-                  'Próxima vacunación',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: -1,
+                  Text(
+                    reminders.first.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
-          const SizedBox(height: 26),
+          const SizedBox(height: 24),
 
-          const Text(
-            'Próximas',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 34,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.5,
+          const Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Próximos',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 34,
+                fontWeight: FontWeight.w900,
+              ),
             ),
           ),
 
@@ -589,54 +606,59 @@ class _RemindersPanelNoScroll extends StatelessWidget {
 
           _GlassCard(
             child: Column(
-              children: const [
-                _ReminderRow(
-                  icon: Icons.directions_walk,
-                  text: 'Paseo (tarde)',
-                  date: '5:00 p.m.',
-                ),
+              children: reminders.map((r) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    children: [
+                      Icon(
+                        r.icon,
+                        color: Colors.white.withOpacity(.85),
+                      ),
 
-                Divider(color: Colors.white24),
+                      const SizedBox(width: 14),
 
-                _ReminderRow(
-                  icon: Icons.medication,
-                  text: 'Desparasitación',
-                  date: '1 mayo',
-                ),
+                      Expanded(
+                        child: Text(
+                          r.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
 
-                Divider(color: Colors.white24),
-
-                _ReminderRow(
-                  icon: Icons.bathtub,
-                  text: 'Baño',
-                  date: '20 mayo',
-                ),
-              ],
+                      Text(
+                        r.date,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(.70),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
           ),
 
-          const SizedBox(height: 24),
-
-          const _TipsCTA(),
-
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
 
           SizedBox(
             height: 62,
+            width: double.infinity,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF67C26F),
-                elevation: 0,
-                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                 ),
               ),
               onPressed: () {},
-              child: const Text(
-                'Añadir recordatorio',
-                style: TextStyle(
-                  fontSize: 18,
+              child: Text(
+                'Añadir recordatorio para ${pet.name}',
+                style: const TextStyle(
+                  fontSize: 17,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
@@ -651,6 +673,9 @@ class _RemindersPanelNoScroll extends StatelessWidget {
   }
 }
 
+/// ─────────────────────────────────────────────
+/// GLASS CARD
+/// ─────────────────────────────────────────────
 class _GlassCard extends StatelessWidget {
   final Widget child;
 
@@ -681,103 +706,9 @@ class _GlassCard extends StatelessWidget {
             ),
             border: Border.all(
               color: Colors.white.withOpacity(0.10),
-              width: 1.2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.10),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-              ),
-            ],
           ),
           child: child,
-        ),
-      ),
-    );
-  }
-}
-
-class _ReminderRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final String date;
-
-  const _ReminderRow({
-    required this.icon,
-    required this.text,
-    required this.date,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: Colors.white.withOpacity(0.80),
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-
-          Text(
-            date,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.70),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TipsCTA extends StatelessWidget {
-  const _TipsCTA();
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      child: _GlassCard(
-        child: Row(
-          children: [
-            Icon(
-              Icons.pets_rounded,
-              color: Colors.white.withOpacity(0.85),
-            ),
-
-            const SizedBox(width: 14),
-
-            const Expanded(
-              child: Text(
-                'Cuida mejor a tu mascota',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-
-            Icon(
-              Icons.chevron_right,
-              color: Colors.white.withOpacity(0.75),
-            ),
-          ],
         ),
       ),
     );

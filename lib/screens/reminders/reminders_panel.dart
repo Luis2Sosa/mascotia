@@ -1,11 +1,45 @@
 import 'package:flutter/material.dart';
 import '../../core/app_ui.dart';
 
+/// ─────────────────────────────────────────────
+/// MODELO RECORDATORIO
+/// ─────────────────────────────────────────────
+class Reminder {
+  final int petId;
+  final IconData icon;
+  final String title;
+  final String description;
+  final String date;
+
+  const Reminder({
+    required this.petId,
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.date,
+  });
+}
+
+/// ─────────────────────────────────────────────
+/// PANEL RECORDATORIOS
+/// ─────────────────────────────────────────────
 class RemindersPanel extends StatelessWidget {
-  const RemindersPanel({super.key});
+  final String petName;
+  final List<Reminder> reminders;
+  final VoidCallback onAddReminder;
+
+  const RemindersPanel({
+    super.key,
+    required this.petName,
+    required this.reminders,
+    required this.onAddReminder,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final nextReminder =
+    reminders.isNotEmpty ? reminders.first : null;
+
     return ListView(
       padding: EdgeInsets.zero,
       physics: const BouncingScrollPhysics(),
@@ -13,102 +47,93 @@ class RemindersPanel extends StatelessWidget {
         // ─────────────────────────────────────────
         // CARD PRINCIPAL
         // ─────────────────────────────────────────
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Hoy • 3:00 PM',
-                style: Txt.small,
-              ),
+        if (nextReminder != null)
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nextReminder.date,
+                  style: Txt.small,
+                ),
 
-              Gaps.s,
+                Gaps.s,
 
-              const Text(
-                'Próxima vacunación',
-                style: Txt.h2,
-              ),
+                Text(
+                  nextReminder.title,
+                  style: Txt.h2,
+                ),
 
-              Gaps.m,
+                Gaps.m,
 
-              Text(
-                'No olvides la vacuna anual de Rocky.',
-                style: Txt.body,
-              ),
+                Text(
+                  nextReminder.description,
+                  style: Txt.body,
+                ),
 
-              Gaps.l,
+                Gaps.l,
 
-              Row(
-                children: [
-                  _MiniInfo(
-                    icon: Icons.calendar_month_rounded,
-                    label: '15 Mayo',
-                  ),
+                Row(
+                  children: [
+                    _MiniInfo(
+                      icon: Icons.calendar_month_rounded,
+                      label: nextReminder.date,
+                    ),
 
-                  Gaps.wm,
+                    Gaps.wm,
 
-                  _MiniInfo(
-                    icon: Icons.pets_rounded,
-                    label: 'Rocky',
-                  ),
-                ],
-              ),
-            ],
+                    _MiniInfo(
+                      icon: Icons.pets_rounded,
+                      label: petName,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
 
         Gaps.xl,
 
         // ─────────────────────────────────────────
         // TÍTULO
         // ─────────────────────────────────────────
-        const Text(
-          'Próximos recordatorios',
+        Text(
+          'Recordatorios de $petName',
           style: Txt.h2,
         ),
 
         Gaps.m,
 
         // ─────────────────────────────────────────
-        // LISTA PREMIUM
+        // LISTA
         // ─────────────────────────────────────────
         AppCard(
           padding: const EdgeInsets.symmetric(
             horizontal: 18,
             vertical: 18,
           ),
-          child: Column(
-            children: const [
-              _ReminderRow(
-                icon: Icons.directions_walk_rounded,
-                text: 'Paseo de la tarde',
-                date: '5:00 PM',
-              ),
+          child: reminders.isEmpty
+              ? const _EmptyState()
+              : Column(
+            children: List.generate(
+              reminders.length,
+                  (index) {
+                final reminder = reminders[index];
 
-              _GlassDivider(),
+                return Column(
+                  children: [
+                    _ReminderRow(
+                      icon: reminder.icon,
+                      text: reminder.title,
+                      date: reminder.date,
+                    ),
 
-              _ReminderRow(
-                icon: Icons.medication_rounded,
-                text: 'Desparasitación',
-                date: '1 Mayo',
-              ),
-
-              _GlassDivider(),
-
-              _ReminderRow(
-                icon: Icons.bathtub_rounded,
-                text: 'Baño y limpieza',
-                date: '20 Mayo',
-              ),
-
-              _GlassDivider(),
-
-              _ReminderRow(
-                icon: Icons.restaurant_rounded,
-                text: 'Comprar alimento',
-                date: '22 Mayo',
-              ),
-            ],
+                    if (index != reminders.length - 1)
+                      const _GlassDivider(),
+                  ],
+                );
+              },
+            ),
           ),
         ),
 
@@ -118,7 +143,7 @@ class RemindersPanel extends StatelessWidget {
         // CARD TIPS
         // ─────────────────────────────────────────
         GestureDetector(
-          onTap: _noop,
+          onTap: () {},
           child: AppCard(
             child: Row(
               children: [
@@ -144,7 +169,8 @@ class RemindersPanel extends StatelessWidget {
 
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                    CrossAxisAlignment.start,
                     children: [
                       const Text(
                         'Consejos para tu mascota',
@@ -176,9 +202,9 @@ class RemindersPanel extends StatelessWidget {
         // BOTÓN
         // ─────────────────────────────────────────
         AppButton(
-          label: 'Añadir recordatorio',
+          label: 'Añadir recordatorio para $petName',
           icon: Icons.add_rounded,
-          onPressed: _noop,
+          onPressed: onAddReminder,
         ),
 
         Gaps.l,
@@ -187,10 +213,45 @@ class RemindersPanel extends StatelessWidget {
   }
 }
 
-void _noop() {}
+/// ─────────────────────────────────────────────
+/// EMPTY STATE
+/// ─────────────────────────────────────────────
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 18),
+      child: Column(
+        children: [
+          Icon(
+            Icons.event_busy_rounded,
+            size: 42,
+            color: Colors.white.withOpacity(.55),
+          ),
+
+          Gaps.m,
+
+          Text(
+            'No hay recordatorios',
+            style: Txt.h3,
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            'Añade el primer recordatorio.',
+            style: Txt.small,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// ─────────────────────────────────────────────
-/// FILA DE RECORDATORIO
+/// FILA RECORDATORIO
 /// ─────────────────────────────────────────────
 class _ReminderRow extends StatelessWidget {
   final IconData icon;
@@ -212,10 +273,8 @@ class _ReminderRow extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-
               gradient: LinearGradient(
                 colors: [
                   Colors.white.withOpacity(.14),
@@ -223,7 +282,6 @@ class _ReminderRow extends StatelessWidget {
                 ],
               ),
             ),
-
             child: Icon(
               icon,
               color: Colors.white,
@@ -235,7 +293,8 @@ class _ReminderRow extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+              CrossAxisAlignment.start,
               children: [
                 Text(
                   text,
@@ -257,13 +316,10 @@ class _ReminderRow extends StatelessWidget {
               horizontal: 12,
               vertical: 8,
             ),
-
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-
               color: Colors.white.withOpacity(.08),
             ),
-
             child: Text(
               date,
               style: const TextStyle(
@@ -298,13 +354,10 @@ class _MiniInfo extends StatelessWidget {
         horizontal: 14,
         vertical: 10,
       ),
-
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-
         color: Colors.white.withOpacity(.08),
       ),
-
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -330,7 +383,7 @@ class _MiniInfo extends StatelessWidget {
 }
 
 /// ─────────────────────────────────────────────
-/// DIVIDER PREMIUM
+/// DIVIDER
 /// ─────────────────────────────────────────────
 class _GlassDivider extends StatelessWidget {
   const _GlassDivider();

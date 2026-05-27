@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mascotia/core/app_background.dart';
 import 'package:mascotia/screens/about/about_screen.dart';
-import 'package:mascotia/screens/home/home_screen.dart';
+import 'package:mascotia/screens/pets/register_pet_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -51,48 +51,40 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   List<Widget> _buildPaws() {
     return [
-      // ───────── TOP AREA
       _paw(top: 30, left: 22, size: 18, opacity: 0.08, angle: -0.4),
       _paw(top: 55, left: 110, size: 14, opacity: 0.07, angle: 0.3),
       _paw(top: 42, left: 210, size: 22, opacity: 0.09, angle: 0.5),
       _paw(top: 70, right: 30, size: 18, opacity: 0.08, angle: -0.2),
 
-      // ───────── UPPER CENTER
       _paw(top: 120, left: 45, size: 24, opacity: 0.10, angle: 0.7),
       _paw(top: 140, left: 160, size: 16, opacity: 0.08, angle: -0.5),
       _paw(top: 115, right: 75, size: 26, opacity: 0.09, angle: 0.4),
       _paw(top: 170, right: 25, size: 18, opacity: 0.08, angle: -0.6),
 
-      // ───────── LOGO ZONE
       _paw(top: 220, left: 18, size: 20, opacity: 0.08, angle: 0.2),
       _paw(top: 250, left: 120, size: 28, opacity: 0.10, angle: -0.4),
       _paw(top: 235, right: 120, size: 24, opacity: 0.09, angle: 0.6),
       _paw(top: 275, right: 18, size: 18, opacity: 0.08, angle: -0.3),
 
-      // ───────── TITLE AREA
       _paw(top: 345, left: 40, size: 16, opacity: 0.08, angle: 0.5),
       _paw(top: 365, left: 180, size: 26, opacity: 0.10, angle: -0.7),
       _paw(top: 340, right: 70, size: 20, opacity: 0.09, angle: 0.2),
 
-      // ───────── CARD AREA
       _paw(top: 455, left: 22, size: 30, opacity: 0.10, angle: -0.4),
       _paw(top: 500, left: 135, size: 18, opacity: 0.08, angle: 0.3),
       _paw(top: 470, right: 115, size: 28, opacity: 0.10, angle: -0.5),
       _paw(top: 525, right: 20, size: 20, opacity: 0.08, angle: 0.6),
 
-      // ───────── BUTTON AREA
       _paw(top: 620, left: 40, size: 24, opacity: 0.09, angle: -0.2),
       _paw(top: 655, left: 175, size: 16, opacity: 0.08, angle: 0.5),
       _paw(top: 635, right: 95, size: 32, opacity: 0.10, angle: -0.7),
       _paw(top: 690, right: 25, size: 20, opacity: 0.08, angle: 0.4),
 
-      // ───────── LOWER AREA
       _paw(bottom: 210, left: 25, size: 26, opacity: 0.09, angle: 0.6),
       _paw(bottom: 170, left: 130, size: 18, opacity: 0.08, angle: -0.3),
       _paw(bottom: 200, right: 120, size: 24, opacity: 0.09, angle: 0.5),
       _paw(bottom: 150, right: 30, size: 30, opacity: 0.10, angle: -0.5),
 
-      // ───────── BOTTOM
       _paw(bottom: 80, left: 55, size: 18, opacity: 0.08, angle: 0.2),
       _paw(bottom: 60, left: 190, size: 24, opacity: 0.09, angle: -0.6),
       _paw(bottom: 95, right: 75, size: 20, opacity: 0.08, angle: 0.4),
@@ -163,24 +155,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                               children: [
                                 SizedBox(height: smallDevice ? 0 : 6),
 
-                                // ───────── LOGO
+                                /// LOGO
                                 Hero(
                                   tag: 'mascotia_logo',
-                                  child: Container(
-
-                                    child: Transform.scale(
-                                      scale: 1.35,
-                                      child: Image.asset(
-                                        'assets/images/logo.png',
-                                        width: logoSize,
-                                        height: logoSize,
-                                        fit: BoxFit.contain,
-                                      ),
+                                  child: Transform.scale(
+                                    scale: 1.35,
+                                    child: Image.asset(
+                                      'assets/images/logo.png',
+                                      width: logoSize,
+                                      height: logoSize,
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
                                 ),
 
-                                // ───────── TÍTULO
+                                /// TITLE
                                 Transform.translate(
                                   offset: const Offset(0, -54),
                                   child: ShaderMask(
@@ -211,7 +200,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                                 SizedBox(height: smallDevice ? 0 : 6),
 
-                                // ───────── CARD PREMIUM
+                                /// CARD
                                 Container(
                                   width: double.infinity,
                                   padding: const EdgeInsets.symmetric(
@@ -290,12 +279,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                                 SizedBox(height: smallDevice ? 38 : 52),
 
-                                // ───────── BOTÓN GOOGLE
+                                /// BOTÓN GOOGLE
                                 _buildGoogleButton(context),
 
                                 const SizedBox(height: 12),
 
-                                // ───────── ABOUT
+                                /// ABOUT
                                 _buildAboutButton(context),
 
                                 SizedBox(height: smallDevice ? 20 : 30),
@@ -323,7 +312,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => const HomeScreen(),
+              builder: (_) => const RegisterPetScreen(),
             ),
           );
         },
