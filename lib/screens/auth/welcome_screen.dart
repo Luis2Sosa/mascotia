@@ -167,22 +167,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 Hero(
                                   tag: 'mascotia_logo',
                                   child: Container(
-                                    decoration: BoxDecoration(
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(0xFF7FE0B7)
-                                              .withOpacity(0.22),
-                                          blurRadius: 40,
-                                          spreadRadius: 8,
-                                        ),
-                                        BoxShadow(
-                                          color: const Color(0xFF378ADD)
-                                              .withOpacity(0.10),
-                                          blurRadius: 65,
-                                          spreadRadius: 4,
-                                        ),
-                                      ],
-                                    ),
+
                                     child: Transform.scale(
                                       scale: 1.35,
                                       child: Image.asset(
