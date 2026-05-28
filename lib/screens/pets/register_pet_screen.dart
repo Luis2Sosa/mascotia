@@ -255,16 +255,21 @@ class _RegisterPetScreenState
               end:
               Alignment.bottomRight,
               colors: [
-                Color(0xFF67E480),
-                Color(0xFF58D36E),
+                Color(0xFF1F8A70),
+                Color(0xFF146356),
               ],
+            ),
+
+            border: Border.all(
+              color: Colors.white
+                  .withOpacity(.06),
             ),
 
             boxShadow: [
               BoxShadow(
                 color: const Color(
-                  0xFF58D36E,
-                ).withOpacity(.30),
+                  0xFF146356,
+                ).withOpacity(.45),
                 blurRadius: 24,
                 offset:
                 const Offset(0, 10),
@@ -281,13 +286,13 @@ class _RegisterPetScreenState
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
 
-                  color: Colors.black
-                      .withOpacity(.08),
+                  color: Colors.white
+                      .withOpacity(.10),
                 ),
 
                 child: const Icon(
                   Icons.check_rounded,
-                  color: Colors.black,
+                  color: Colors.white,
                   size: 24,
                 ),
               ),
@@ -307,10 +312,9 @@ class _RegisterPetScreenState
                     const Text(
                       'Mascota registrada',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight:
-                        FontWeight
-                            .w800,
+                        FontWeight.w800,
                         fontSize: 15,
                       ),
                     ),
@@ -322,13 +326,12 @@ class _RegisterPetScreenState
                     Text(
                       '$name fue agregado correctamente 🐾',
                       style: TextStyle(
-                        color: Colors.black
-                            .withOpacity(.72),
+                        color: Colors.white
+                            .withOpacity(.82),
                         fontSize: 13,
                         height: 1.4,
                         fontWeight:
-                        FontWeight
-                            .w600,
+                        FontWeight.w500,
                       ),
                     ),
                   ],
