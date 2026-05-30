@@ -126,6 +126,23 @@ class RemindersPanel extends StatelessWidget {
                       icon: reminder.icon,
                       text: reminder.title,
                       date: reminder.date,
+                      onEdit: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('Editar recordatorio'),
+                            content: Text(
+                              'Modificar ${reminder.title}',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cerrar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
 
                     if (index != reminders.length - 1)
@@ -257,11 +274,14 @@ class _ReminderRow extends StatelessWidget {
   final IconData icon;
   final String text;
   final String date;
+  final VoidCallback? onEdit;
 
   const _ReminderRow({
+    super.key,
     required this.icon,
     required this.text,
     required this.date,
+    this.onEdit,
   });
 
   @override
@@ -293,8 +313,7 @@ class _ReminderRow extends StatelessWidget {
 
           Expanded(
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   text,
@@ -328,6 +347,18 @@ class _ReminderRow extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
+          ),
+
+          const SizedBox(width: 8),
+
+          IconButton(
+            onPressed: onEdit,
+            icon: const Icon(
+              Icons.edit_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+            tooltip: 'Editar recordatorio',
           ),
         ],
       ),

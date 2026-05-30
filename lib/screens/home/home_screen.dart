@@ -656,7 +656,7 @@ class _RemindersPanel extends StatelessWidget {
               ),
               onPressed: () {},
               child: Text(
-                'Añadir recordatorio para ${pet.name}',
+                'Configurar recordatorios para ${pet.name}',
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,

@@ -1,9 +1,11 @@
 import 'dart:io';
 
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/app_background.dart';
+import '../reminders/pet_reminders_screen.dart';
 
 class RegisterPetScreen extends StatefulWidget {
   const RegisterPetScreen({super.key});
@@ -736,7 +738,19 @@ class _RegisterPetScreenState
                       ),
                     ),
 
-                    onPressed: savePet,
+                    onPressed: () {
+                      savePet();
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PetCarePlanScreen(
+                            petName: nameController.text.trim(),
+                            petType: selectedType,
+                          ),
+                        ),
+                      );
+                    },
 
                     child: const Text(
                       'Guardar mascota',
