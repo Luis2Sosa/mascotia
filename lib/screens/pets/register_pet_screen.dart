@@ -324,7 +324,7 @@ class _RegisterPetScreenState
                     ),
 
                     Text(
-                      '$name fue agregado correctamente 🐾',
+                      '$name fue agregado correctamente',
                       style: TextStyle(
                         color: Colors.white
                             .withOpacity(.82),
