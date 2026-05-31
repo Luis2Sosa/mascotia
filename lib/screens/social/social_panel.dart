@@ -1,16 +1,16 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import '../../core/app_ui.dart';
-import '../../core/theme/app_theme.dart';
 
-/// ─────────────────────────────────────────────────────
-/// MODELO POST
-/// ─────────────────────────────────────────────────────
+import '../../core/app_ui.dart';
+
+// ─────────────────────────────────────────────
+// MODELO POST
+// ─────────────────────────────────────────────
 class Post {
-  final int id;
-  final String author;
-  final String text;
+  final int     id;
+  final String  author;
+  final String  text;
   final String? imageAsset;
 
   const Post({
@@ -21,15 +21,14 @@ class Post {
   });
 }
 
-/// ─────────────────────────────────────────────────────
-/// SOCIAL PANEL PREMIUM
-/// ─────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// SOCIAL PANEL
+// ─────────────────────────────────────────────
 class SocialPanel extends StatefulWidget {
-  final List<Post> posts;
-  final bool Function(int id) isLiked;
-  final void Function(int id) onToggleLike;
-
-  final List<String>? petNames;
+  final List<Post>            posts;
+  final bool Function(int)    isLiked;
+  final void Function(int)    onToggleLike;
+  final List<String>?         petNames;
   final ValueChanged<String>? onPetChosen;
 
   const SocialPanel({
@@ -41,113 +40,99 @@ class SocialPanel extends StatefulWidget {
     this.onPetChosen,
   });
 
+  /// Bottom sheet para elegir con qué mascota publicar
   static Future<String?> showPublishAsPicker(
       BuildContext context, {
         required List<String> petNames,
-      }) async {
+      }) {
     return showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.black54,
-      builder: (ctx) {
-        return Container(
-          decoration: BoxDecoration(
-            color: const Color(0xFF10263E),
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(32),
-            ),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.08),
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 44,
-                    height: 4,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF10263E),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(32)),
+          border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 44,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: .22),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  'Publicar como',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                ...petNames.map(
+                      (name) => Container(
+                    margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(.22),
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(22),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withValues(alpha: .10),
+                          Colors.white.withValues(alpha: .04),
+                        ],
+                      ),
+                      border: Border.all(
+                          color:
+                          Colors.white.withValues(alpha: .08)),
                     ),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  const Text(
-                    'Publicar como',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  ...petNames.map(
-                        (name) => Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      decoration: BoxDecoration(
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withOpacity(.10),
-                            Colors.white.withOpacity(.04),
-                          ],
+                      ),
+                      leading: Container(
+                        width: 42,
+                        height: 42,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: .10),
                         ),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(.08),
+                        child: const Icon(Icons.pets_rounded,
+                            color: Colors.white),
+                      ),
+                      title: Text(
+                        name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
                         ),
                       ),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(22),
-                        ),
-                        leading: Container(
-                          width: 42,
-                          height: 42,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(.10),
-                          ),
-                          child: const Icon(
-                            Icons.pets_rounded,
-                            color: Colors.white,
-                          ),
-                        ),
-                        title: Text(
-                          name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                          ),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          color: Colors.white.withOpacity(.55),
-                          size: 16,
-                        ),
-                        onTap: () {
-                          Navigator.pop<String>(context, name);
-                        },
+                      trailing: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white.withValues(alpha: .55),
+                        size: 16,
                       ),
+                      onTap: () => Navigator.pop<String>(ctx, name),
                     ),
                   ),
-
-                  const SizedBox(height: 4),
-                ],
-              ),
+                ),
+                const SizedBox(height: 4),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -162,39 +147,33 @@ class _SocialPanelState extends State<SocialPanel> {
 
     return ListView.separated(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.only(
-        top: 10,
-        bottom: bottomSafe + 24,
-      ),
+      padding: EdgeInsets.only(top: 10, bottom: bottomSafe + 24),
       itemCount: widget.posts.length,
       separatorBuilder: (_, __) => const SizedBox(height: 18),
       itemBuilder: (context, index) {
         final p = widget.posts[index];
-
         return PostCard(
           id: p.id,
           author: p.author,
           text: p.text,
           imageAsset: p.imageAsset,
           liked: widget.isLiked(p.id),
-          onToggleLike: () {
-            widget.onToggleLike(p.id);
-          },
+          onToggleLike: () => widget.onToggleLike(p.id),
         );
       },
     );
   }
 }
 
-/// ─────────────────────────────────────────────────────
-/// POST CARD PREMIUM
-/// ─────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// POST CARD
+// ─────────────────────────────────────────────
 class PostCard extends StatelessWidget {
-  final int id;
-  final String author;
-  final String text;
-  final String? imageAsset;
-  final bool liked;
+  final int      id;
+  final String   author;
+  final String   text;
+  final String?  imageAsset;
+  final bool     liked;
   final VoidCallback onToggleLike;
 
   const PostCard({
@@ -212,10 +191,7 @@ class PostCard extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 18,
-          sigmaY: 18,
-        ),
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
@@ -224,16 +200,15 @@ class PostCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withOpacity(.12),
-                Colors.white.withOpacity(.05),
+                Colors.white.withValues(alpha: .12),
+                Colors.white.withValues(alpha: .05),
               ],
             ),
             border: Border.all(
-              color: Colors.white.withOpacity(.08),
-            ),
+                color: Colors.white.withValues(alpha: .08)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.12),
+                color: Colors.black.withValues(alpha: .12),
                 blurRadius: 24,
                 offset: const Offset(0, 14),
               ),
@@ -242,7 +217,7 @@ class PostCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// HEADER
+              // ── Header ──
               Row(
                 children: [
                   Container(
@@ -250,16 +225,12 @@ class PostCard extends StatelessWidget {
                     height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(.10),
+                      color: Colors.white.withValues(alpha: .10),
                     ),
-                    child: const Icon(
-                      Icons.pets_rounded,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.pets_rounded,
+                        color: Colors.white),
                   ),
-
                   Gaps.wm,
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,11 +243,10 @@ class PostCard extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-
                         Text(
                           'Hace unos minutos',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(.55),
+                            color: Colors.white.withValues(alpha: .55),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -284,43 +254,36 @@ class PostCard extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  Icon(
-                    Icons.more_horiz_rounded,
-                    color: Colors.white.withOpacity(.45),
-                  ),
+                  Icon(Icons.more_horiz_rounded,
+                      color: Colors.white.withValues(alpha: .45)),
                 ],
               ),
 
               const SizedBox(height: 16),
 
-              /// TEXTO
+              // ── Texto ──
               Text(
                 text,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(.92),
+                  color: Colors.white.withValues(alpha: .92),
                   fontSize: 15,
                   height: 1.6,
                   fontWeight: FontWeight.w500,
                 ),
               ),
 
-              /// IMAGEN
+              // ── Imagen ──
               if (imageAsset != null) ...[
                 const SizedBox(height: 16),
-
                 ClipRRect(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(
-                    imageAsset!,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Image.asset(imageAsset!, fit: BoxFit.cover),
                 ),
               ],
 
               const SizedBox(height: 16),
 
-              /// ACTIONS
+              // ── Acciones ──
               Row(
                 children: [
                   _ActionButton(
@@ -331,9 +294,7 @@ class PostCard extends StatelessWidget {
                     active: liked,
                     onTap: onToggleLike,
                   ),
-
                   const SizedBox(width: 12),
-
                   _ActionButton(
                     icon: Icons.mode_comment_outlined,
                     label: 'Comentar',
@@ -349,13 +310,13 @@ class PostCard extends StatelessWidget {
   }
 }
 
-/// ─────────────────────────────────────────────────────
-/// BOTÓN ACCIÓN
-/// ─────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// BOTÓN ACCIÓN
+// ─────────────────────────────────────────────
 class _ActionButton extends StatelessWidget {
   final IconData icon;
-  final String label;
-  final bool active;
+  final String   label;
+  final bool     active;
   final VoidCallback onTap;
 
   const _ActionButton({
@@ -369,33 +330,29 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: active
-          ? const Color(0xFFFF4D6D).withOpacity(.18)
-          : Colors.white.withOpacity(.08),
+          ? const Color(0xFFFF4D6D).withValues(alpha: .18)
+          : Colors.white.withValues(alpha: .08),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 10,
-          ),
+              horizontal: 14, vertical: 10),
           child: Row(
             children: [
               Icon(
                 icon,
                 color: active
                     ? const Color(0xFFFF4D6D)
-                    : Colors.white.withOpacity(.85),
+                    : Colors.white.withValues(alpha: .85),
                 size: 20,
               ),
-
               const SizedBox(width: 8),
-
               Text(
                 label,
                 style: TextStyle(
-                  color: Colors.white.withOpacity(.92),
+                  color: Colors.white.withValues(alpha: .92),
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
                 ),

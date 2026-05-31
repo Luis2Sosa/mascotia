@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -11,203 +10,203 @@ class RegisterPetScreen extends StatefulWidget {
   const RegisterPetScreen({super.key});
 
   @override
-  State<RegisterPetScreen> createState() =>
-      _RegisterPetScreenState();
+  State<RegisterPetScreen> createState() => _RegisterPetScreenState();
 }
 
-class _RegisterPetScreenState
-    extends State<RegisterPetScreen> {
-  final nameController =
-  TextEditingController();
+class _RegisterPetScreenState extends State<RegisterPetScreen> {
+  final nameController   = TextEditingController();
+  final ageController    = TextEditingController();
+  final weightController = TextEditingController();
+  final picker           = ImagePicker();
 
-  final ageController =
-  TextEditingController();
-
-  final weightController =
-  TextEditingController();
-
-  final picker = ImagePicker();
-
-  File? imageFile;
-
-  String selectedType = 'Perro';
+  File?   imageFile;
+  String  selectedType = 'Perro';
 
   final List<_PetType> petTypes = const [
-    _PetType(
-      label: 'Perro',
-      icon: Icons.pets_rounded,
-      color: Color(0xFF58D36E),
-    ),
-    _PetType(
-      label: 'Gato',
-      icon: Icons.catching_pokemon_rounded,
-      color: Color(0xFF8B7CFF),
-    ),
-    _PetType(
-      label: 'Ave',
-      icon: Icons.flutter_dash_rounded,
-      color: Color(0xFF3DB9FF),
-    ),
-    _PetType(
-      label: 'Pez',
-      icon: Icons.phishing_rounded,
-      color: Color(0xFF1D9BF0),
-    ),
-    _PetType(
-      label: 'Reptil',
-      icon: Icons.eco_rounded,
-      color: Color(0xFF2AD17F),
-    ),
-    _PetType(
-      label: 'Otro',
-      icon: Icons.favorite_rounded,
-      color: Color(0xFFFF5CA8),
-    ),
+    _PetType(label: 'Perro',  icon: Icons.pets_rounded,               color: Color(0xFF58D36E)),
+    _PetType(label: 'Gato',   icon: Icons.catching_pokemon_rounded,   color: Color(0xFF8B7CFF)),
+    _PetType(label: 'Ave',    icon: Icons.flutter_dash_rounded,       color: Color(0xFF3DB9FF)),
+    _PetType(label: 'Pez',    icon: Icons.phishing_rounded,           color: Color(0xFF1D9BF0)),
+    _PetType(label: 'Reptil', icon: Icons.eco_rounded,                color: Color(0xFF2AD17F)),
+    _PetType(label: 'Otro',   icon: Icons.favorite_rounded,           color: Color(0xFFFF5CA8)),
   ];
 
-  Future<void> pickImage() async {
+  // ─────────────────────────────────────────────
+  // Imagen
+  // ─────────────────────────────────────────────
+  Future<void> _pickImage() async {
     final image = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 85,
     );
-
     if (image != null) {
-      setState(() {
-        imageFile = File(image.path);
-      });
+      setState(() => imageFile = File(image.path));
     }
   }
 
-  void savePet() {
-    final name =
-    nameController.text.trim();
+  // ─────────────────────────────────────────────
+  // Guardar — devuelve true si pasó validación
+  // ─────────────────────────────────────────────
+  bool _validate() {
+    final name   = nameController.text.trim();
+    final age    = ageController.text.trim();
+    final weight = weightController.text.trim();
 
-    final age =
-    ageController.text.trim();
+    if (name.isEmpty || age.isEmpty || weight.isEmpty) {
+      _showSnack(
+        icon: Icons.warning_amber_rounded,
+        iconColor: const Color(0xFFFF6B6B),
+        iconBg: const Color(0xFFFF6B6B),
+        bg: const Color(0xFF1B2333),
+        border: const Color(0xFFFF6B6B),
+        title: 'Campos incompletos',
+        subtitle: 'Debes completar toda la información de la mascota.',
+      );
+      return false;
+    }
 
-    final weight =
-    weightController.text.trim();
+    final parsedAge    = int.tryParse(age);
+    final parsedWeight = double.tryParse(weight);
 
-    final messenger =
-    ScaffoldMessenger.of(context);
+    if (parsedAge == null || parsedAge <= 0) {
+      _showSnack(
+        icon: Icons.warning_amber_rounded,
+        iconColor: const Color(0xFFFF6B6B),
+        iconBg: const Color(0xFFFF6B6B),
+        bg: const Color(0xFF1B2333),
+        border: const Color(0xFFFF6B6B),
+        title: 'Edad inválida',
+        subtitle: 'Ingresa un número entero mayor a 0.',
+      );
+      return false;
+    }
 
-    messenger.clearSnackBars();
+    if (parsedWeight == null || parsedWeight <= 0) {
+      _showSnack(
+        icon: Icons.warning_amber_rounded,
+        iconColor: const Color(0xFFFF6B6B),
+        iconBg: const Color(0xFFFF6B6B),
+        bg: const Color(0xFF1B2333),
+        border: const Color(0xFFFF6B6B),
+        title: 'Peso inválido',
+        subtitle: 'Ingresa un número mayor a 0.',
+      );
+      return false;
+    }
 
-    if (name.isEmpty ||
-        age.isEmpty ||
-        weight.isEmpty) {
-      messenger.showSnackBar(
+    return true;
+  }
+
+  void _onSave() {
+    // 🔑 Solo navega si pasa validación
+    if (!_validate()) return;
+
+    final name = nameController.text.trim();
+
+    _showSnack(
+      icon: Icons.check_rounded,
+      iconColor: Colors.white,
+      iconBg: Colors.white,
+      bg: null, // usa gradient verde
+      border: Colors.white,
+      title: 'Mascota registrada',
+      subtitle: '$name fue agregado correctamente',
+      useGreen: true,
+    );
+
+    // Pequeña pausa para que se vea el snack, luego navega
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PetCarePlanScreen(
+            petName: name,
+            petType: selectedType,
+            petAge: int.parse(ageController.text.trim()),
+            petWeight: double.parse(weightController.text.trim()),
+          ),
+        ),
+      );
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  // SnackBar reutilizable
+  // ─────────────────────────────────────────────
+  void _showSnack({
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBg,
+    Color? bg,
+    required Color border,
+    required String title,
+    required String subtitle,
+    bool useGreen = false,
+  }) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(
         SnackBar(
           elevation: 0,
-          backgroundColor:
-          Colors.transparent,
-
-          behavior:
-          SnackBarBehavior.floating,
-
-          margin:
-          const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 14,
-          ),
-
-          duration:
-          const Duration(seconds: 3),
-
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          duration: const Duration(seconds: 3),
           content: Container(
-            padding:
-            const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 18,
-            ),
-
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
             decoration: BoxDecoration(
-              borderRadius:
-              BorderRadius.circular(26),
-
-              color:
-              const Color(0xFF1B2333),
-
-              border: Border.all(
-                color: const Color(
-                  0xFFFF6B6B,
-                ).withOpacity(.35),
-              ),
-
+              borderRadius: BorderRadius.circular(26),
+              color: useGreen ? null : bg,
+              gradient: useGreen
+                  ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF1F8A70), Color(0xFF146356)],
+              )
+                  : null,
+              border: Border.all(color: border.withOpacity(.35)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black
-                      .withOpacity(.28),
+                  color: Colors.black.withOpacity(.28),
                   blurRadius: 24,
-                  offset:
-                  const Offset(0, 10),
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
-
             child: Row(
               children: [
                 Container(
                   width: 46,
                   height: 46,
-
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-
-                    color: const Color(
-                      0xFFFF6B6B,
-                    ).withOpacity(.12),
+                    color: iconBg.withOpacity(useGreen ? .10 : .12),
                   ),
-
-                  child: const Icon(
-                    Icons.warning_amber_rounded,
-                    color:
-                    Color(0xFFFF6B6B),
-                    size: 24,
-                  ),
+                  child: Icon(icon, color: iconColor, size: 24),
                 ),
-
                 const SizedBox(width: 14),
-
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment
-                        .start,
-
-                    mainAxisSize:
-                    MainAxisSize.min,
-
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'Campos incompletos',
-                        style: TextStyle(
-                          color:
-                          Colors.white,
-                          fontWeight:
-                          FontWeight
-                              .w800,
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
                           fontSize: 15,
                         ),
                       ),
-
-                      const SizedBox(
-                        height: 3,
-                      ),
-
+                      const SizedBox(height: 3),
                       Text(
-                        'Debes completar toda la información de la mascota.',
+                        subtitle,
                         style: TextStyle(
-                          color: Colors
-                              .white
-                              .withOpacity(
-                            .72,
-                          ),
+                          color: Colors.white.withOpacity(.72),
                           fontSize: 13,
                           height: 1.4,
-                          fontWeight:
-                          FontWeight
-                              .w500,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -218,134 +217,9 @@ class _RegisterPetScreenState
           ),
         ),
       );
-
-      return;
-    }
-
-    messenger.showSnackBar(
-      SnackBar(
-        elevation: 0,
-        backgroundColor:
-        Colors.transparent,
-
-        behavior:
-        SnackBarBehavior.floating,
-
-        margin:
-        const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 14,
-        ),
-
-        duration:
-        const Duration(seconds: 3),
-
-        content: Container(
-          padding:
-          const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 18,
-          ),
-
-          decoration: BoxDecoration(
-            borderRadius:
-            BorderRadius.circular(26),
-
-            gradient:
-            const LinearGradient(
-              begin: Alignment.topLeft,
-              end:
-              Alignment.bottomRight,
-              colors: [
-                Color(0xFF1F8A70),
-                Color(0xFF146356),
-              ],
-            ),
-
-            border: Border.all(
-              color: Colors.white
-                  .withOpacity(.06),
-            ),
-
-            boxShadow: [
-              BoxShadow(
-                color: const Color(
-                  0xFF146356,
-                ).withOpacity(.45),
-                blurRadius: 24,
-                offset:
-                const Offset(0, 10),
-              ),
-            ],
-          ),
-
-          child: Row(
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-
-                  color: Colors.white
-                      .withOpacity(.10),
-                ),
-
-                child: const Icon(
-                  Icons.check_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-
-              const SizedBox(width: 14),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-
-                  mainAxisSize:
-                  MainAxisSize.min,
-
-                  children: [
-                    const Text(
-                      'Mascota registrada',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight:
-                        FontWeight.w800,
-                        fontSize: 15,
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height: 3,
-                    ),
-
-                    Text(
-                      '$name fue agregado correctamente',
-                      style: TextStyle(
-                        color: Colors.white
-                            .withOpacity(.82),
-                        fontSize: 13,
-                        height: 1.4,
-                        fontWeight:
-                        FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
+  // ─────────────────────────────────────────────
   @override
   void dispose() {
     nameController.dispose();
@@ -357,78 +231,39 @@ class _RegisterPetScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-      const Color(0xFF08111F),
-
+      backgroundColor: const Color(0xFF08111F),
       body: AppBackgroundBlobs(
         child: SafeArea(
           child: SingleChildScrollView(
-            padding:
-            const EdgeInsets.symmetric(
-              horizontal: 24,
-            ),
-
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.center,
-
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 12),
 
-                /// HEADER
+                // ── HEADER ──
                 Row(
                   children: [
                     _glassButton(
-                      icon: Icons
-                          .arrow_back_ios_new_rounded,
-                      onTap: () =>
-                          Navigator.pop(
-                            context,
-                          ),
+                      icon: Icons.arrow_back_ios_new_rounded,
+                      onTap: () => Navigator.pop(context),
                     ),
-
                     const Spacer(),
-
                     Container(
-                      padding:
-                      const EdgeInsets
-                          .symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-
-                      decoration:
-                      BoxDecoration(
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                          20,
-                        ),
-
-                        color: Colors.white
-                            .withOpacity(
-                          .06,
-                        ),
-
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.white.withOpacity(.06),
                         border: Border.all(
-                          color: Colors
-                              .white
-                              .withOpacity(
-                            .05,
-                          ),
-                        ),
+                            color: Colors.white.withOpacity(.05)),
                       ),
-
                       child: Row(
                         children: [
                           _step(true),
-                          const SizedBox(
-                            width: 6,
-                          ),
+                          const SizedBox(width: 6),
                           _step(false),
-                          const SizedBox(
-                            width: 6,
-                          ),
+                          const SizedBox(width: 6),
                           _step(false),
                         ],
                       ),
@@ -438,7 +273,7 @@ class _RegisterPetScreenState
 
                 const SizedBox(height: 34),
 
-                /// TITLE
+                // ── TÍTULO ──
                 const Text(
                   'Registrar mascota',
                   textAlign: TextAlign.center,
@@ -446,8 +281,7 @@ class _RegisterPetScreenState
                     color: Colors.white,
                     fontSize: 38,
                     height: 1,
-                    fontWeight:
-                    FontWeight.w900,
+                    fontWeight: FontWeight.w900,
                     letterSpacing: -2,
                   ),
                 ),
@@ -460,134 +294,73 @@ class _RegisterPetScreenState
                     'Añade la información básica de tu mascota para comenzar el seguimiento.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white
-                          .withOpacity(.68),
+                      color: Colors.white.withOpacity(.68),
                       fontSize: 15,
                       height: 1.6,
-                      fontWeight:
-                      FontWeight.w500,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 40),
 
-                /// AVATAR
+                // ── AVATAR ──
                 GestureDetector(
-                  onTap: pickImage,
-
+                  onTap: _pickImage,
                   child: Stack(
-                    clipBehavior:
-                    Clip.none,
-
+                    clipBehavior: Clip.none,
                     children: [
                       Container(
                         width: 140,
                         height: 140,
-
-                        decoration:
-                        BoxDecoration(
-                          shape:
-                          BoxShape.circle,
-
-                          gradient:
-                          LinearGradient(
-                            begin:
-                            Alignment
-                                .topLeft,
-                            end: Alignment
-                                .bottomRight,
-
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                             colors: [
-                              Colors.white
-                                  .withOpacity(
-                                .10,
-                              ),
-                              Colors.white
-                                  .withOpacity(
-                                .03,
-                              ),
+                              Colors.white.withOpacity(.10),
+                              Colors.white.withOpacity(.03),
                             ],
                           ),
-
-                          border:
-                          Border.all(
-                            color: Colors
-                                .white
-                                .withOpacity(
-                              .08,
-                            ),
-                          ),
-
+                          border: Border.all(
+                              color: Colors.white.withOpacity(.08)),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(
-                                0xFF58D36E,
-                              ).withOpacity(
-                                .10,
-                              ),
+                              color: const Color(0xFF58D36E).withOpacity(.10),
                               blurRadius: 30,
                               spreadRadius: 2,
                             ),
                           ],
                         ),
-
-                        child: imageFile !=
-                            null
+                        child: imageFile != null
                             ? ClipOval(
-                          child:
-                          Image.file(
-                            imageFile!,
-                            fit: BoxFit
-                                .cover,
-                          ),
+                          child: Image.file(imageFile!,
+                              fit: BoxFit.cover),
                         )
                             : Icon(
-                          Icons
-                              .pets_rounded,
+                          Icons.pets_rounded,
                           size: 58,
-                          color: Colors
-                              .white
-                              .withOpacity(
-                            .75,
-                          ),
+                          color: Colors.white.withOpacity(.75),
                         ),
                       ),
-
                       Positioned(
                         bottom: 6,
                         right: 0,
-
                         child: Container(
                           width: 48,
                           height: 48,
-
-                          decoration:
-                          BoxDecoration(
-                            shape:
-                            BoxShape
-                                .circle,
-
-                            color:
-                            const Color(
-                              0xFF58D36E,
-                            ),
-
-                            border:
-                            Border.all(
-                              color:
-                              const Color(
-                                0xFF08111F,
-                              ),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFF58D36E),
+                            border: Border.all(
+                              color: const Color(0xFF08111F),
                               width: 4,
                             ),
                           ),
-
                           child: const Icon(
-                            Icons
-                                .camera_alt_rounded,
-                            color:
-                            Colors.black,
+                            Icons.camera_alt_rounded,
+                            color: Colors.black,
                             size: 22,
                           ),
                         ),
@@ -601,24 +374,19 @@ class _RegisterPetScreenState
                 Text(
                   'Subir foto',
                   style: TextStyle(
-                    color: Colors.white
-                        .withOpacity(.42),
+                    color: Colors.white.withOpacity(.42),
                     fontSize: 13,
-                    fontWeight:
-                    FontWeight.w500,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
 
                 const SizedBox(height: 38),
 
-                /// INPUTS
+                // ── INPUTS ──
                 _InputField(
-                  controller:
-                  nameController,
-                  hint:
-                  'Nombre de la mascota',
-                  icon:
-                  Icons.pets_rounded,
+                  controller: nameController,
+                  hint: 'Nombre de la mascota',
+                  icon: Icons.pets_rounded,
                 ),
 
                 const SizedBox(height: 16),
@@ -627,29 +395,20 @@ class _RegisterPetScreenState
                   children: [
                     Expanded(
                       child: _InputField(
-                        controller:
-                        ageController,
+                        controller: ageController,
                         hint: 'Edad',
-                        icon: Icons
-                            .cake_rounded,
-                        keyboard:
-                        TextInputType
-                            .number,
+                        icon: Icons.cake_rounded,
+                        keyboard: TextInputType.number,
                       ),
                     ),
-
                     const SizedBox(width: 16),
-
                     Expanded(
                       child: _InputField(
-                        controller:
-                        weightController,
+                        controller: weightController,
                         hint: 'Peso',
-                        icon: Icons
-                            .monitor_weight_rounded,
-                        keyboard:
-                        TextInputType
-                            .number,
+                        icon: Icons.monitor_weight_rounded,
+                        keyboard: const TextInputType.numberWithOptions(
+                            decimal: true),
                       ),
                     ),
                   ],
@@ -658,15 +417,12 @@ class _RegisterPetScreenState
                 const SizedBox(height: 32),
 
                 Align(
-                  alignment:
-                  Alignment.centerLeft,
+                  alignment: Alignment.centerLeft,
                   child: Text(
                     'TIPO DE MASCOTA',
                     style: TextStyle(
-                      color: Colors.white
-                          .withOpacity(.45),
-                      fontWeight:
-                      FontWeight.w700,
+                      color: Colors.white.withOpacity(.45),
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 1.8,
                       fontSize: 11,
                     ),
@@ -677,11 +433,8 @@ class _RegisterPetScreenState
 
                 GridView.builder(
                   shrinkWrap: true,
-                  itemCount:
-                  petTypes.length,
-                  physics:
-                  const NeverScrollableScrollPhysics(),
-
+                  itemCount: petTypes.length,
+                  physics: const NeverScrollableScrollPhysics(),
                   gridDelegate:
                   const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
@@ -689,75 +442,39 @@ class _RegisterPetScreenState
                     mainAxisSpacing: 14,
                     childAspectRatio: .88,
                   ),
-
-                  itemBuilder:
-                      (context, index) {
-                    final item =
-                    petTypes[index];
-
+                  itemBuilder: (context, index) {
+                    final item = petTypes[index];
                     return _TypeCard(
                       label: item.label,
                       icon: item.icon,
                       color: item.color,
-                      selected:
-                      selectedType ==
-                          item.label,
-                      onTap: () {
-                        setState(() {
-                          selectedType =
-                              item.label;
-                        });
-                      },
+                      selected: selectedType == item.label,
+                      onTap: () =>
+                          setState(() => selectedType = item.label),
                     );
                   },
                 ),
 
                 const SizedBox(height: 34),
 
-                /// BUTTON
+                // ── BOTÓN ──
                 SizedBox(
                   width: double.infinity,
                   height: 62,
-
                   child: ElevatedButton(
-                    style: ElevatedButton
-                        .styleFrom(
+                    style: ElevatedButton.styleFrom(
                       elevation: 0,
-                      backgroundColor:
-                      const Color(
-                        0xFF58D36E,
-                      ),
-
-                      shape:
-                      RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius
-                            .circular(
-                          24,
-                        ),
+                      backgroundColor: const Color(0xFF58D36E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
                       ),
                     ),
-
-                    onPressed: () {
-                      savePet();
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PetCarePlanScreen(
-                            petName: nameController.text.trim(),
-                            petType: selectedType,
-                          ),
-                        ),
-                      );
-                    },
-
+                    onPressed: _onSave,
                     child: const Text(
                       'Guardar mascota',
                       style: TextStyle(
                         color: Colors.black,
-                        fontWeight:
-                        FontWeight.w800,
+                        fontWeight: FontWeight.w800,
                         fontSize: 17,
                       ),
                     ),
@@ -779,40 +496,19 @@ class _RegisterPetScreenState
   }) {
     return Material(
       color: Colors.transparent,
-
       child: InkWell(
-        borderRadius:
-        BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20),
         onTap: onTap,
-
         child: Ink(
           width: 54,
           height: 54,
-
           decoration: BoxDecoration(
-            borderRadius:
-            BorderRadius.circular(
-              20,
-            ),
-
-            color:
-            Colors.white.withOpacity(
-              .06,
-            ),
-
-            border: Border.all(
-              color:
-              Colors.white.withOpacity(
-                .05,
-              ),
-            ),
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.white.withOpacity(.06),
+            border:
+            Border.all(color: Colors.white.withOpacity(.05)),
           ),
-
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 20,
-          ),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
       ),
     );
@@ -820,33 +516,27 @@ class _RegisterPetScreenState
 
   Widget _step(bool active) {
     return AnimatedContainer(
-      duration:
-      const Duration(milliseconds: 250),
-
+      duration: const Duration(milliseconds: 250),
       width: active ? 24 : 16,
       height: 5,
-
       decoration: BoxDecoration(
-        borderRadius:
-        BorderRadius.circular(99),
-
+        borderRadius: BorderRadius.circular(99),
         color: active
             ? const Color(0xFF58D36E)
-            : Colors.white.withOpacity(
-          .12,
-        ),
+            : Colors.white.withOpacity(.12),
       ),
     );
   }
 }
 
+// ─────────────────────────────────────────────
+// WIDGETS LOCALES
+// ─────────────────────────────────────────────
+
 class _InputField extends StatelessWidget {
   final TextEditingController controller;
-
   final String hint;
-
   final IconData icon;
-
   final TextInputType? keyboard;
 
   const _InputField({
@@ -860,57 +550,28 @@ class _InputField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 64,
-
       decoration: BoxDecoration(
-        borderRadius:
-        BorderRadius.circular(22),
-
-        color:
-        Colors.white.withOpacity(.05),
-
-        border: Border.all(
-          color:
-          Colors.white.withOpacity(
-            .05,
-          ),
-        ),
+        borderRadius: BorderRadius.circular(22),
+        color: Colors.white.withOpacity(.05),
+        border: Border.all(color: Colors.white.withOpacity(.05)),
       ),
-
       child: TextField(
         controller: controller,
         keyboardType: keyboard,
-
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w600,
           fontSize: 15,
         ),
-
         decoration: InputDecoration(
           border: InputBorder.none,
-
           contentPadding:
-          const EdgeInsets.symmetric(
-            vertical: 20,
-          ),
-
+          const EdgeInsets.symmetric(vertical: 20),
           hintText: hint,
-
           hintStyle: TextStyle(
-            color:
-            Colors.white.withOpacity(
-              .38,
-            ),
-          ),
-
-          prefixIcon: Icon(
-            icon,
-            color:
-            Colors.white.withOpacity(
-              .72,
-            ),
-            size: 21,
-          ),
+              color: Colors.white.withOpacity(.38)),
+          prefixIcon: Icon(icon,
+              color: Colors.white.withOpacity(.72), size: 21),
         ),
       ),
     );
@@ -919,13 +580,9 @@ class _InputField extends StatelessWidget {
 
 class _TypeCard extends StatelessWidget {
   final String label;
-
   final IconData icon;
-
   final Color color;
-
   final bool selected;
-
   final VoidCallback onTap;
 
   const _TypeCard({
@@ -940,68 +597,46 @@ class _TypeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-
       child: AnimatedContainer(
-        duration:
-        const Duration(
-          milliseconds: 180,
-        ),
-
+        duration: const Duration(milliseconds: 180),
         decoration: BoxDecoration(
-          borderRadius:
-          BorderRadius.circular(24),
-
+          borderRadius: BorderRadius.circular(24),
           color: selected
               ? color.withOpacity(.14)
-              : Colors.white
-              .withOpacity(.04),
-
+              : Colors.white.withOpacity(.04),
           border: Border.all(
             width: selected ? 1.4 : 1,
             color: selected
                 ? color.withOpacity(.8)
-                : Colors.white
-                .withOpacity(.05),
+                : Colors.white.withOpacity(.05),
           ),
         ),
-
         child: Column(
-          mainAxisAlignment:
-          MainAxisAlignment.center,
-
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               width: 56,
               height: 56,
-
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-
                 color: selected
                     ? color.withOpacity(.16)
-                    : Colors.white
-                    .withOpacity(.05),
+                    : Colors.white.withOpacity(.05),
               ),
-
               child: Icon(
                 icon,
                 size: 26,
                 color: selected
                     ? color
-                    : Colors.white
-                    .withOpacity(.75),
+                    : Colors.white.withOpacity(.75),
               ),
             ),
-
             const SizedBox(height: 14),
-
             Text(
               label,
               style: TextStyle(
-                color: Colors.white
-                    .withOpacity(.95),
-                fontWeight:
-                FontWeight.w700,
+                color: Colors.white.withOpacity(.95),
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
             ),
@@ -1014,9 +649,7 @@ class _TypeCard extends StatelessWidget {
 
 class _PetType {
   final String label;
-
   final IconData icon;
-
   final Color color;
 
   const _PetType({
